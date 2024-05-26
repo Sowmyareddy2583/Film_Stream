@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../utils/axios";
-import no_image from "../../../public/no_image.png"
 
 const TopNav = () => {
-  const [query, setQuery] = useState(" ");
-  const [search, setSearch] = useState([]);
-  const getSearch = async () => {
+  const [query, setQuery] = useState("");
+  const [Searches, setSearches] = useState([]);
+
+  const getSearches = async () => {
     try {
       const { data } = await axios.get(`/search/multi?query=${query}`);
-      setSearch(data.results);
-      // console.log(data.results);
+      setSearches(data.results);
     } catch (error) {
-      console.log("error: " + error);
+      console.log(error);
     }
   };
+
   useEffect(() => {
-    getSearch();
+    getSearches();
   }, [query]);
+
   return (
-    <div className="w-[80%] h-[10vh] relative flex ml-[20%] items-center">
+    <div className="w-[80%] h-[10vh] relative flex m-auto items-center">
       <i className="ri-search-line text-zinc-400 text-2xl"></i>
       <input
         onChange={(e) => setQuery(e.target.value)}
@@ -34,26 +35,30 @@ const TopNav = () => {
           className=" ri-close-fill text-zinc-400 text-2xl cursor-pointer right-0"
         ></i>
       )}
-      <div className=" absolute w-[50%] max-h-[50vh] bg-zinc-200 top-[100%] left-[5%] overflow-auto rounded">
-        {search.map((s, i) => (
-          <Link className="hover:text-black hover:bg-zinc-300 duration-300 font-semibold text-zinc-600 w-[100%] p-10 flex justify-start items-center border-b-2 border-zinc-100">
-            <img className="w-[10vh] h-[10vh] object-cover rounded mr-5 shadow-lg"
-              src={ s.backdrop_path || s.profile_path
-                ? `https://image.tmdb.org/t/p/original/${
-                      s.backdrop_path || s.profile_path
-                  }`
-                : no_image}
-              alt=""
-            />
-            <span>
-              {s.name || s.title || s.original_name || s.original_title}
-            </span>
-          </Link>
-        ))}
-        {/* <Link className="hover:text-black hover:bg-zinc-300 duration-300 font-semibold text-zinc-600 w-[100%] p-10 flex justify-start items-center border-b-2 border-zinc-100">
-          <img src="" alt="" />
-          <h1>hello everyone</h1>
-        </Link> */}
+      <div className="z-[999999] absolute w-[50%] max-h-[50vh] bg-zinc-200 top-[100%] left-[5%] overflow-auto rounded">
+        {Searches.length > 0 &&
+          Searches.map((s, i) => (
+            <Link
+              to={`/${s.media_type}/details/${s.id}`}
+              key={i}
+              className="hover:text-black hover:bg-zinc-300 duration-300 font-semibold text-zinc-600 w-[100%] p-10 flex justify-start items-center border-b-2 border-zinc-100"
+            >
+              <img
+                className="w-[10vh] h-[10vh] object-cover rounded-full mr-5 shadow-lg"
+                src={
+                  s.backdrop_path || s.profile_path
+                    ? `https://image.tmdb.org/t/p/original/${
+                        s.backdrop_path || s.profile_path
+                      }`
+                    : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIYFqyM9w9Hx4IGRoMQ2Xml0Kb4gBFMMzH9DMIiycxdg&s"
+                }
+                alt=""
+              />
+              <span>
+                {s.name || s.title || s.original_name || s.original_title}
+              </span>
+            </Link>
+          ))}
       </div>
     </div>
   );
